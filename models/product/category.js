@@ -27,11 +27,13 @@ const categorySchema = new Schema({
         type: Number,
         trim: true,
         default: 0
+    },
+    id:{
+        type: String,
+        default:""
     }
 }, {
     timestamps: true
-})
+});
 
-const Category = model('Category', categorySchema)
-
-module.exports = Category;
+module.exports = model('Category', categorySchema)
