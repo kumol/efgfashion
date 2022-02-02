@@ -1,9 +1,9 @@
 const route = require("express").Router();
+const CategoryController = require("../controller/category");
+const NagadPaymentGateway = require("../../common/index");
 
-route.get("/",(req,res)=>{
-    res.json({
-        body: "Hello"
-    });
-});
+route.post('/category', CategoryController.addNewCategory);
+route.get('/category', CategoryController.getAllCategory);
+route.get('/category/:id', CategoryController.getSingleCategory);
 
 module.exports = route;
