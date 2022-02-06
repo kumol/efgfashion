@@ -65,7 +65,9 @@ class RoleController{
     async deleteRole(req,res){
         try{
             const deleted = await Role.deleteOne({_id: mongoose.Types.ObjectId(req.params.id)});
-            return success(res, "Successfully deleted" , deleted);
+            return deleted.deletedCount
+                ? success(res, "Successfully deleted" , deleted) 
+                : notModified(res, "Not deleted", {});
         }catch(error){
             return failure(res, error.message, error.stack);
         }
