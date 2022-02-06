@@ -77,7 +77,8 @@ const productSchema = new Schema({
     },
     ratingReview: [{
         type: Schema.Types.ObjectId,
-        ref: 'RatingReview'
+        ref: 'RatingReview',
+        default: []
     }],
     avgRating: {
         type: Number,
