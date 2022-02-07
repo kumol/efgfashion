@@ -14,7 +14,6 @@ const OrderSchema = new Schema({
     orderId: {
         type: String,
         trim: true,
-        required: true
     },
     phone: {
         type: String,
