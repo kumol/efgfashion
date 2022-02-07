@@ -26,8 +26,10 @@ class CategoryController{
     }
     async removeCategory(req,res){
         try{
-            Category.deleteOne({_id: mongoose.Types.ObjectId(req.params.id)});
-            return success(res, "Category Deleted", {});
+            const deleted = await Category.deleteOne({_id: mongoose.Types.ObjectId(req.params.id)});
+            return deleted.deletedCount 
+                ? success(res, "Successfully deleted", deleted)
+                : notModified(res, "Not deleted", {});
         }catch(error){
             return failure(res, error.message, error);
         }

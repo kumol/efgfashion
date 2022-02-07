@@ -58,8 +58,8 @@ class ProductController{
     }
     async getProductByCategory(req,res){
         try{
-            let limit = +query.limit || 10;
-            let page = +query.page || 1;
+            let limit = +req.query.limit || 10;
+            let page = +req.query.page || 1;
             const product = await Product
                 .find({category: mongoose.Types.ObjectId(req.params.id)})
                 .sort({_id: -1})
@@ -97,8 +97,9 @@ class ProductController{
             let deleted = await Product.deleteOne({
                 _id: mongoose.Types.ObjectId(req.params.id)
             });
-            console.log(deleted);
-            return success(res, "Deleted", deleted);
+            return deleted.deletedCount 
+                ? success(res, "Successfully deleted", deleted)
+                : notModified(res, "Not deleted", {});
         }catch(error){
             return failure(res, error.message, error);
         }
