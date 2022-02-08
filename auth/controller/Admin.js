@@ -22,9 +22,9 @@ const logIn = async(req,res,next)=>{
         const passwordMatch = bcrypt.compareSync(password, admin.password);
         if(!passwordMatch) return res.json({success: false, statusCode: 404, message: "Wrong password"});
 
-        const token = jwt.sign({ email: admin.email, phone: admin.phone, name: admin.name}, process.env.SECRET);
         const rights = admin.role.rights || [];
-        return success(res, "Login Successful", {token: token, access: rights});
+        const token = jwt.sign({ email: admin.email, phone: admin.phone, name: admin.name, access: rights}, process.env.SECRET , { expiresIn: '1h' });
+        return success(res, "Login Successful", {token: token});
     }catch(error){
         return failure(res, "Failed login", {});
     }
