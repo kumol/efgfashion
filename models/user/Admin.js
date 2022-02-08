@@ -43,6 +43,11 @@ const adminSchema = new Schema({
         type: String,
         trim: true,
         required: true
+    },
+    profileUrl: {
+        type: String,
+        trim: true,
+        default: ""
     }
 }, {
     timestamps: true

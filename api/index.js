@@ -7,5 +7,6 @@ router.get("/",(req,res)=>{
 router.use("/products", require("../products/index"));
 router.use("/user", require("../user/index"));
 router.use("/order", require("../order/index"));
+router.use("/auth", require("../auth/index"));
 
 module.exports = router;
