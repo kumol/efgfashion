@@ -8,8 +8,8 @@ const port = 8080;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use("/api/v1", require("./api/index"));
+app.use(cors())
+app.use("/api/v1", cors(), require("./api/index"));
 
 app.listen(port, () => {
     console.log(`App running on ${port} port`)
