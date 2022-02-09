@@ -52,20 +52,27 @@ class CategoryController{
     }
     async updateCategory(req,res){
         try{
+            const file = req.files;
+            const uploadFile = file && file.banner ? await Helper.FileUpload(file.banner, './upload/category/banner/', req.params.id) : null;
+
             let {product, addProduct, removeProduct, ...body} = req.body,
                updatedObj = {},
                pushObj = addProduct ? {"products": product} : null,
                pullObj = removeProduct ? {"products": product } : null,
                setObj = body ? {...body} : null;
+            
+            uploadFile ? setObj["banner"] = uploadFile : null;
             pushObj ? updatedObj["$push"] = pushObj : null;
             pullObj ? updatedObj["$pull"] = pullObj : null;
             setObj ? updatedObj["$set"] = setObj : null;
 
-            let updated = await Category.updateOne({_id: mongoose.Types.ObjectId(req.params.id)}, updatedObj);
-            return updated.n 
-                ? updated.nModified
-                ? success(res, "Successfull Updated Category", {})
-                : notModified(res, "Not modified", {})
+            
+            let modified = await Category.updateOne({_id: mongoose.Types.ObjectId(req.params.id)}, updatedObj);
+            const category = modified.matchedCount ? await Category.findOne({_id: mongoose.Types.ObjectId(req.params.id)}).lean() : {};
+            return modified.matchedCount
+                ? modified.modifiedCount
+                ? success(res, "Successfull Updated Category", category)
+                : notModified(res, "Not modified", modified)
                 : notFound(res, "No content found", {});
         }catch(error){
             return failure(res, error.message, error);
