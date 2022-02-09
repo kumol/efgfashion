@@ -8,7 +8,7 @@ const categorySchema = new Schema({
         trim: true,
         maxlength: 50
     },
-    image: {
+    banner: {
         type: String,
         required: true
     },

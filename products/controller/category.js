@@ -1,13 +1,19 @@
 const mongoose = require("mongoose");
 const { success, failure, notFound, notModified } = require("../../common/helper/responseStatus");
 const Category = require("../../models/product/category");
+const Helper = require("../../common/helper/index");
 class CategoryController{
     async addNewCategory(req,res){
         try{
+            const file = req.files;
+            const isExist = await Category.countDocuments({name: req.body.name});
+            if(isExist) return res.status(400).json({success: false, statusCode: 400, message: "Category already exist"});
             let category = new Category({
                 ...req.body
             });
+            const uploadFile = await Helper.FileUpload(file.banner, './upload/category/banner/', category._id);
             category.id = category._id;
+            category.banner = uploadFile
             category = await category.save();
             return success(res, "Category Created", category);
         }catch(error){
