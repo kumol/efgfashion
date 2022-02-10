@@ -23,7 +23,7 @@ class Helper {
             const uploadPath = path + newName;
             
             const moveFile = image.mv(uploadPath);
-            if (moveFile) return path + newName
+            if (moveFile) return path.split('.')[1] + newName
         } catch (error) {
             if (error) return error
         }

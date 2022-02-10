@@ -1,19 +1,22 @@
-const { success, failure } = require("../../common/helper/responseStatus");
+const { success, failure, notModified } = require("../../common/helper/responseStatus");
 const Product = require("../../models/product/product");
 const mongoose = require("mongoose");
+const { FileUpload } = require("../../common/helper");
 class ProductController{
     async addNewProduct(req,res){
         try{
-            let { largeThumbnail, ...body } = req.body;
-            const smallThumbnail = largeThumbnail;
+            let { ...body } = req.body;
+            const file = req.files;
+            
             const newProduct = {
-                ...body,
-                thumbnail:{
-                    large: largeThumbnail,
-                    small: smallThumbnail
-                }
+                ...body
             }
             let product = new Product(newProduct);
+            const uploadFile = file ? await FileUpload(file.largeThumbnail, "./upload/product/", product._id) : "";
+            product["thumbnail"] = {
+                large: uploadFile,
+                small: uploadFile
+            }
             product = await product.save();
             return success(res,"Product Created", product);
         }catch(error){
@@ -75,17 +78,22 @@ class ProductController{
     }
     async updateProduct(req,res){
         try{
-            let { thumbnail, ...updateObj} = req.body;
-            thumbnail.large ? thumbnail.small = thumbnail.large : null;
-            updateObj.thumbnail = updateObj.thumbnail ? thumbnail : null;
-            const modified = Product.updateOne({
+            const file = req.files;
+            let { ...updateObj} = req.body;
+            const uploadFile = file ? await FileUpload(file.thumbnail, "./upload/product/", req.params.id) : "";
+            let thumbnail = {};
+            thumbnail["large"] = uploadFile;
+            thumbnail["small"] = uploadFile;
+            thumbnail ? updateObj.thumbnail = thumbnail : null;
+            const modified = await Product.updateOne({
                 _id: mongoose.Types.ObjectId(req.params.id)
             },{
                 $set: updateObj
             });
-            return modified.n 
-                ? modified.nModified
-                ? success(res, "Successfull Updated Product", {})
+            const product = await Product.findOne({_id: mongoose.Types.ObjectId(req.params.id)}).lean();
+            return modified.matchedCount 
+                ? modified.modifiedCount
+                ? success(res, "Successfull Updated Product", product)
                 : notModified(res, "Not modified", {})
                 : notFound(res, "No content found", {});
         }catch(error){

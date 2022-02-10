@@ -1,17 +1,20 @@
-const { failure, success, notFound } = require("../../common/helper/responseStatus");
+const { failure, success, notModified, notFound } = require("../../common/helper/responseStatus");
 const Brand = require("../../models/product/Brand");
 const mongoose = require("mongoose");
 const Product = require("../../models/product/product");
+const { FileUpload } = require("../../common/helper");
 
 class BrandController {
     async createNewBrand(req,res){
         try{
-            let {title, logo, productCount} = req.body;
+            let file = req.files;
+            let {title, productCount} = req.body;
             let newBrand = {};
             title ? newBrand["title"] = title : null;
-            logo ? newBrand["logo"] = logo : null;
             productCount ? newBrand["productCount"] = productCount : null;
             let brand = new Brand(newBrand);
+            let uploadFile = file ? await FileUpload(file.logo, "./upload/brand/logo/", brand._id) : '';
+            brand.logo = uploadFile;
             brand = await brand.save();
             return brand 
                 ? success(res, "Brand created", brand)
@@ -38,7 +41,7 @@ class BrandController {
             const limit = req.query.limit || 10,
                 page = req.query.page || 1,
                 total = await Brand.countDocuments({});
-            const brand = await Brand.findOne({})
+            const brand = await Brand.find({})
                 .sort({_id: -1})
                 .skip(limit * (page-1))
                 .lean();
@@ -78,10 +81,13 @@ class BrandController {
     }
     async updateBrand(req,res){
         try{
-            let { title , logo, productCount} = req.body;
+            let file = req.files;
+            let { title , productCount} = req.body;
             let updateObj = {};
             title ? updateObj["title"] = title : null;
+            let logo = file ? await FileUpload(file.logo, "./upload/brand/logo/", req.params.id) : null;
             logo ? updateObj["logo"] = logo : null;
+            
             productCount ? updateObj["productCount"] = productCount : null;
 
             const modified = await Brand.updateOne({
@@ -89,9 +95,10 @@ class BrandController {
             },{
                 $set: updateObj
             });
+            const brand = await Brand.findOne({_id: mongoose.Types.ObjectId(req.params.id)}).lean();
             return modified.matchedCount
                 ? modified.modifiedCount
-                ? success(res, "Successfull Updated Brand", {})
+                ? success(res, "Successfull Updated Brand", brand)
                 : notModified(res, "Not modified", {})
                 : notFound(res, "No content found", {});
         }catch(error){

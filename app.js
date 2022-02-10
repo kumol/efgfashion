@@ -9,6 +9,8 @@ const port = 8080;
 const fileUpload = require("express-fileupload")
 
 app.use('/upload/category/banner', express.static('upload/category/banner/'));
+app.use('/upload/brand/logo', express.static('upload/brand/logo/'));
+app.use('/upload/product/', express.static("upload/product/"));
 app.use("/upload", express.static('upload/'))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
