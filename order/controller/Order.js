@@ -1,6 +1,7 @@
-const { success, failure } = require("../../common/helper/responseStatus");
+const { success, failure, notFound, notModified } = require("../../common/helper/responseStatus");
 const Order = require("../../models/Order/Order");
 const uid = require("uniqid");
+const mongoose = require("mongoose");
 class OrderController{
     async placeOrder(req, res, next){
         try {
@@ -14,23 +15,32 @@ class OrderController{
                 postCode,
                 postOffice,
                 upazila,
-                paymentMethod
+                paymentMethod,
+                deliveryCharge,
+                subTotalPrice,
+                status,
+                isCouponApplied,
+                coupon,
+                products,
+                amountPaid
             } = req.body;
     
             const orderId = await uid();
-            console.log(orderId);
-            let dCharge
-            if (shippingArea === "Dhaka") {
-                dCharge = foundProcessOrder.shippingCharge.insideDhaka
-            } else {
-                dCharge = foundProcessOrder.shippingCharge.outsideDhaka
+            // if (shippingArea === "Dhaka") {
+            //     dCharge = shippingCharge.insideDhaka
+            // } else {
+            //     dCharge = shippingCharge.outsideDhaka
+            // }
+    
+            let paymentStatus;
+            const totalPrice = subTotalPrice + deliveryCharge;
+            if(amountPaid == totalPrice) {
+                paymentStatus = "paid"
             }
-    
-            const totalAmount = foundProcessOrder.subTotal + dCharge
-    
+
             const orderData = new Order({
-                orderCode,
-                createdBy: id,
+                orderCode : orderId,
+                user: req.user.id,
                 name,
                 email,
                 phone,
@@ -39,13 +49,13 @@ class OrderController{
                 postCode,
                 postOffice,
                 upazila,
-                deliveryCharge: dCharge,
+                deliveryCharge: deliveryCharge,
                 paymentMethod,
-                products: foundProcessOrder.products,
-                subTotalPrice: foundProcessOrder.subTotal,
-                totalPrice: totalAmount,
-                isCouponApplied: foundProcessOrder.isCouponApplied,
-                coupon: foundProcessOrder.coupon
+                products: products,
+                subTotalPrice: subTotalPrice,
+                totalPrice: totalPrice,
+                isCouponApplied: isCouponApplied,
+                status: status
             })
     
             const order = await orderData.save()
@@ -53,6 +63,88 @@ class OrderController{
             return success(res, "Order placed", order);
         } catch (error) {
             console.log(error);
+            return failure(res, error.message, error);
+        }
+    }
+    async getAllOrder(req,res,next){
+        try{
+            let page = req.query.page || 1,
+                limit = req.query.limit || 10,
+                total = await Order.countDocuments({});
+
+            let order = await Order.find({})
+                .sort({_id: -1})
+                .skip((page-1)*limit)
+                .limit(limit)
+                .populate({
+                    "path": "user",
+                    "select": "name email phone"
+                })
+                .lean({});
+            return order ? success(res, "Fetched order", {
+                total: total,
+                page: page,
+                limit: limit,
+                order: order
+            }) : notFound(res, "No content found", {tota: total,
+                limit: limit, 
+                page: page
+            });
+        }catch(error){
+            return failure(res, error.message, error);
+        }
+    }
+    async getSingleOrder(req,res,next){
+        try{
+            let order = await Order.findOne({_id: mongoose.Types.ObjectId(req.params.id)}).populate({
+                "path": "user",
+                "select": "name email phone"
+            })
+                .lean({});
+            return order ? success(res, "Fetched order", order)
+                : notFound(res, "No content found", {});
+        }catch(error){
+            return failure(res, error.message, error);
+        }
+    }
+    async updateOrder(req,res){
+        try{
+            let {...updateObj } = req.body;
+            let {id} = req.params;
+            const modified = await Order.updateOne({
+                _id: mongoose.Types.ObjectId(id)
+            },{
+                $set: updateObj
+            });
+            const order = modified.matchedCount
+                ? await Order.findOne({_id: mongoose.Types.ObjectId(req.params.id)})
+                .populate({
+                    "path": "user",
+                    "select": "name email phone"
+                })
+                .populate({
+                    "path": "comments",
+                    "select": "message createdAt userName userId _id profile"
+                })
+                .lean({}) : {};
+            return modified.matchedCount 
+                ? modified.modifiedCount
+                ? success(res, "Successfull Updated Order", order)
+                : notModified(res, "Not modified", order)
+                : notFound(res, "No content found", {});
+        }catch(error){
+            return failure(res, error.message, error);
+        }
+    }
+    async deleteOrder(req,res,next){
+        try{
+            let deleted = await Order.deleteOne({
+                _id: mongoose.Types.ObjectId(req.params.id)
+            });
+            return deleted.deletedCount 
+                ? success(res, "Successfully deleted", deleted)
+                : notModified(res, "Not deleted", {});
+        }catch(error){
             return failure(res, error.message, error);
         }
     }

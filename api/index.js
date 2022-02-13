@@ -3,7 +3,7 @@ const router = require("express").Router();
 // const userRouter = require("../user/index");
 router.get("/",(req,res)=>{
     console.log("hello")
-    res.json({"b": "Hello App is running"});
+    res.json({"test": "Hello App is running"});
 })
 router.use("/products", require("../products/index"));
 router.use("/user", require("../user/index"));

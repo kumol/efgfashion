@@ -99,6 +99,14 @@ const OrderSchema = new Schema({
         required: true,
         trim: true
     },
+    amountPaid: {
+        type: Number,
+        default: 0,
+    },
+    refundedAmount: {
+        type: Number,
+        default: 0
+    },
     paymentStatus: {
         type: String,
         default: "pending",
@@ -121,8 +129,7 @@ const OrderSchema = new Schema({
         ]
     },
     transactionId: {
-        type: Schema.Types.ObjectId,
-        default: ""
+        type: Schema.Types.ObjectId
     },
     isCouponApplied: {
         type: Boolean,

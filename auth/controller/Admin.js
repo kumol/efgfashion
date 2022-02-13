@@ -23,7 +23,7 @@ const logIn = async(req,res,next)=>{
         if(!passwordMatch) return res.json({success: false, statusCode: 404, message: "Wrong password"});
 
         const rights = admin.role.rights || [];
-        const token = jwt.sign({ email: admin.email, phone: admin.phone, name: admin.name, role: rights}, process.env.SECRET , { expiresIn: '1h' });
+        const token = jwt.sign({ id: admin._id, email: admin.email, phone: admin.phone, name: admin.name, role: rights}, process.env.SECRET , { expiresIn: '1h' });
         return success(res, "Login Successful", {token: token});
     }catch(error){
         return failure(res, "Failed login", {});
