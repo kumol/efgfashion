@@ -5,11 +5,13 @@ const { FileUpload } = require("../../common/helper");
 class ProductController{
     async addNewProduct(req,res){
         try{
-            let { ...body } = req.body;
+            let { tags, ...body } = req.body;
             const file = req.files;
             
+            tags = JSON.parse(tags);
             const newProduct = {
-                ...body
+                ...body,
+                tags
             }
             let product = new Product(newProduct);
             const uploadFile = file ? await FileUpload(file.largeThumbnail, "./upload/product/", product._id) : "";
@@ -79,12 +81,14 @@ class ProductController{
     async updateProduct(req,res){
         try{
             const file = req.files;
-            let { ...updateObj} = req.body;
-            const uploadFile = file ? await FileUpload(file.thumbnail, "./upload/product/", req.params.id) : "";
+            let {tags, largeThumbnail, ...updateObj} = req.body;
+            tags ? tags = JSON.parse(tags) : null;
+            const uploadFile = file ? await FileUpload(file.largeThumbnail, "./upload/product/", req.params.id) : null;
             let thumbnail = {};
-            thumbnail["large"] = uploadFile;
-            thumbnail["small"] = uploadFile;
+            uploadFile ? thumbnail["large"] = uploadFile : null;
+            uploadFile ? thumbnail["small"] = uploadFile : null;
             thumbnail ? updateObj.thumbnail = thumbnail : null;
+            tags ? updateObj.tags = tags : null;
             const modified = await Product.updateOne({
                 _id: mongoose.Types.ObjectId(req.params.id)
             },{

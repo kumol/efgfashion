@@ -42,10 +42,10 @@ class CategoryController{
     }
     async getSingleCategory(req,res){
         try{
-            let category = await Category.find({}).populate("products").exec();
+            let category = await Category.findOne({_id: mongoose.Types.ObjectId(req.params.id)}).populate("products").exec();
             return category 
                 ? success(res, "Category Found", category)
-                : notFound(res, "No Content Found", []);
+                : notFound(res, "No Content Found", {});
         }catch(error){
             return failure(res, error.message, error);
         }

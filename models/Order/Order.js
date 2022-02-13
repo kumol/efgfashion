@@ -52,8 +52,8 @@ const OrderSchema = new Schema({
     },
     paymentMethod: {
         type: String,
-        default: "COD",
-        enum: ["COD", "SSLCOMMERZ"]
+        default: "cash",
+        enum: ["cash", "online"]
     },
     products: [
         {

@@ -28,6 +28,19 @@ class Helper {
             if (error) return error
         }
     }
+    async UniqueCode(){
+        try {
+            let data = generateUniqueId({ length: 8, useLetters: false })
+            let checkAvaliable = await Order.findOne({ orderCode: data })
+            if (checkAvaliable) {
+                UniqueCode()
+            }
+            return data
+    
+        } catch (error) {
+            return error
+        }
+    }
     // async generateRandomString( length = 40 ){
     //     let characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     //     let charactersLength = characters.length
