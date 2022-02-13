@@ -1,6 +1,6 @@
-const { success } = require("../../common/helper/responseStatus");
+const { success, failure } = require("../../common/helper/responseStatus");
 const Order = require("../../models/Order/Order");
-
+const uid = require("uniqid");
 class OrderController{
     async placeOrder(req, res, next){
         try {
@@ -17,8 +17,8 @@ class OrderController{
                 paymentMethod
             } = req.body;
     
-            const orderId = await UniqueCode()
-    
+            const orderId = await uid();
+            console.log(orderId);
             let dCharge
             if (shippingArea === "Dhaka") {
                 dCharge = foundProcessOrder.shippingCharge.insideDhaka
@@ -52,6 +52,7 @@ class OrderController{
             
             return success(res, "Order placed", order);
         } catch (error) {
+            console.log(error);
             return failure(res, error.message, error);
         }
     }

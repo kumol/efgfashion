@@ -82,9 +82,11 @@ class ProductController{
         try{
             const file = req.files;
             let {tags, largeThumbnail, ...updateObj} = req.body;
+            let thumbnail;
             tags ? tags = JSON.parse(tags) : null;
+
             const uploadFile = file ? await FileUpload(file.largeThumbnail, "./upload/product/", req.params.id) : null;
-            let thumbnail = {};
+            uploadFile ? thumbnail = {} : null;
             uploadFile ? thumbnail["large"] = uploadFile : null;
             uploadFile ? thumbnail["small"] = uploadFile : null;
             thumbnail ? updateObj.thumbnail = thumbnail : null;

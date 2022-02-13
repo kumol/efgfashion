@@ -59,12 +59,12 @@ const Customer = async (req, res, next) => {
 }
 
 
-const Admin = async(req,res,next)=>{
+const Admin = async(req,res,next) => {
     try{
         const token = await req.headers.authorization;
         if (!token) return res.status(404).json({ success: false, statusCode: 404, message: 'Token not found.' });
         const splitToken = await req.headers.authorization.split(' ')[1];
-        const decode = await jwt.verify(splitToken, process.env.JWT_SECRET);
+        const decode = await jwt.verify(splitToken, process.env.SECRET);
         role = decode.role;
         if(!role || role.length<=0) return res.json({ success: false, statusCode: 501, message: "You have no access."});
         req.user = decode
