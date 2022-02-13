@@ -122,10 +122,6 @@ class OrderController{
                     "path": "user",
                     "select": "name email phone"
                 })
-                .populate({
-                    "path": "comments",
-                    "select": "message createdAt userName userId _id profile"
-                })
                 .lean({}) : {};
             return modified.matchedCount 
                 ? modified.modifiedCount

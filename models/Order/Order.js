@@ -140,12 +140,7 @@ const OrderSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Coupon",
         default: null
-    },
-    comments: [{
-        type: Schema.Types.ObjectId,
-        ref: "OrderComment",
-        default: null
-    }]
+    }
 }, {
     timestamps: true
 });
