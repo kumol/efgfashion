@@ -44,16 +44,16 @@ const userSchema = new Schema({
         trim: true,
         default: ""
     },
-    shippingAddress: [{
+    shippingAddress: {
         type: String,
         trim: true,
-        default: []
-    }],
-    deliveryAddress: [{
+        default: ""
+    },
+    deliveryAddress: {
         type: String,
         trim: true,
-        default: []
-    }],
+        default: ""
+    },
     postCode: {
         type: String,
         trim: true,

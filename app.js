@@ -12,6 +12,8 @@ app.use('/upload/category/banner', express.static('upload/category/banner/'));
 app.use('/upload/brand/logo', express.static('upload/brand/logo/'));
 app.use('/upload/product/', express.static("upload/product/"));
 app.use('/upload/banner/', express.static("upload/banner/"));
+app.use('/upload/user/', express.static("upload/user/"));
+
 app.use("/upload", express.static('upload/'))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
