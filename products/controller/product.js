@@ -5,13 +5,15 @@ const { FileUpload } = require("../../common/helper");
 class ProductController{
     async addNewProduct(req,res){
         try{
+            const { id } = req.user
             let { tags, ...body } = req.body;
             const file = req.files;
             
             tags = JSON.parse(tags);
             const newProduct = {
                 ...body,
-                tags
+                tags,
+                createdBy: id
             }
             let product = new Product(newProduct);
             const uploadFile = file ? await FileUpload(file.largeThumbnail, "./upload/product/", product._id) : "";
@@ -123,6 +125,7 @@ class ProductController{
     }
     async updateProduct(req,res){
         try{
+            const { id } = req.user
             const file = req.files;
             let {tags, largeThumbnail, ...updateObj} = req.body;
             let thumbnail;
@@ -134,6 +137,7 @@ class ProductController{
             uploadFile ? thumbnail["small"] = uploadFile : null;
             thumbnail ? updateObj.thumbnail = thumbnail : null;
             tags ? updateObj.tags = tags : null;
+            updateObj["updatedBy"] = id;
             const modified = await Product.updateOne({
                 _id: mongoose.Types.ObjectId(req.params.id)
             },{
@@ -178,7 +182,7 @@ class ProductController{
         try{
             let page = +req.query.page || 1;
             let limit = +req.query.limit || 20;
-            const {titleText} = req.body.query;
+            const {titleText} = req.body;
             const total = await Product.countDocuments({
                 title: {$regex: titleText, $options: "i"}
             });
@@ -216,7 +220,60 @@ class ProductController{
         }
     }
 
-   
+    async filterProduct(req,res){
+        try{
+            let limit = +req.query.limit || 10;
+            let page = +req.query.page || 1;
+            let query = {},
+                category = req.body.category 
+                    ? mongoose.Types.ObjectId(req.body.category) : null,
+                brand = req.body.brand 
+                    ? mongoose.Types.ObjectId(req.body.brand) : null,
+                lowerPrice = req.body.lowerPrice >= 0 
+                    ? req.body.lowerPrice : null,
+                upperPrice = req.body.upperPrice >= 0
+                    ? req.body.upperPrice : null,
+                tags = req.body.tags ? req.body.tags : null;
+                
+            category ? query.category = category : null;
+            brand ? query.brand = brand : null;
+            (lowerPrice != (null || undefined)) && (upperPrice != (null || undefined))
+                ? query["$and"] = [{price: {$gte: lowerPrice}}, {price: {$lte: upperPrice}}]
+                : null;
+            tags ? query["tags"] = {$in: tags} : null;
+            
+            const total = await Product.countDocuments(query);
+            const product = await Product
+                .find(query)
+                .populate({
+                    path: "category",
+                    select: "name _id"
+                })
+                .populate({
+                    path: "brand",
+                    select: "title _id"
+                })
+                .sort({_id: -1})
+                .skip((page-1)*limit)
+                .limit(limit)
+                .exec();
+            return product 
+                ? success(res, "Product fetched", {
+                    page: page,
+                    limit: limit,
+                    total: total,
+                    product
+                })
+                : notFound(res, "No content found", {
+                    page: page,
+                    limit: limit,
+                    total: total,
+                    product: []
+                }); 
+        }catch(error){
+            return failure(res, error.message, error);
+        }
+    }
 }
 
 module.exports = new ProductController();

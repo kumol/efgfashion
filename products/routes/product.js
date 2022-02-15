@@ -8,5 +8,6 @@ route.get('/single/:id', ProductController.getSignle);
 route.get('/cat/:id', ProductController.getProductByCategory);
 route.put('/update/:id', Admin, ProductController.updateProduct);
 route.delete('/remove/:id', Admin, ProductController.deleteProduct);
-route.post('/search/', ProductController.searchProduct )
+route.post('/search/', ProductController.searchProduct );
+route.post('/filter/', ProductController.filterProduct);
 module.exports = route;
