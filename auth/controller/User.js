@@ -39,5 +39,6 @@ const resetPassword = async(req,res,next)=>{
 }
 
 module.exports = {
-    logIn, resetPassword
+    logIn,
+    resetPassword
 }

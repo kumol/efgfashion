@@ -42,7 +42,6 @@ const Customer = async (req, res, next) => {
         const token = await req.headers.authorization
         if (!token) return res.status(404).json({ message: 'Token not found' })
 
-        // decode token
         const splitToken = await req.headers.authorization.split(' ')[1]
         const decode = await jwt.verify(splitToken, process.env.JWT_SECRET)
         req.user = decode
