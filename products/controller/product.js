@@ -2,17 +2,19 @@ const { success, failure, notModified } = require("../../common/helper/responseS
 const Product = require("../../models/product/product");
 const mongoose = require("mongoose");
 const { FileUpload } = require("../../common/helper");
+const Category = require("../../models/product/category");
 class ProductController{
     async addNewProduct(req,res){
         try{
             const { id } = req.user
-            let { tags, ...body } = req.body;
+            let { tags, category, ...body } = req.body;
             const file = req.files;
             
             tags = JSON.parse(tags);
             const newProduct = {
                 ...body,
                 tags,
+                category: category,
                 createdBy: id
             }
             let product = new Product(newProduct);
@@ -22,6 +24,12 @@ class ProductController{
                 small: uploadFile
             }
             product = await product.save();
+            product ? await Category.updateOne({
+                _id: mongoose.Types.ObjectId(category)
+            },{
+                $set:{
+                    products: product._id
+            }}) : null;
             return success(res,"Product Created", product);
         }catch(error){
             return failure(res, error.message, error)

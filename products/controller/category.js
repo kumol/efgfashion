@@ -22,10 +22,56 @@ class CategoryController{
     }
     async getAllCategory(req,res){
         try{
-            let category = await Category.find({}).populate("products").exec();
+            let page = req.query.page || 1;
+            let limit = req.query.limit || 10;
+            let total = await Category.countDocuments({isActive: true});
+
+            let category = await Category.find({})
+                .sort({indexId: -1})
+                .skip((page-1)*limit)
+                .limit(limit)
+                .populate("products").exec();
             return category 
-                ? success(res, "Category Found", category)
-                : notFound(res, "No content found", []);
+                ? success(res, "Category Found", {
+                    total: total,
+                    page: page,
+                    limit: limit,
+                    category
+                })
+                : notFound(res, "No content found", {
+                    total: total,
+                    page: page,
+                    limit: limit,
+                    category: []
+                });
+        }catch(error){
+            return failure(res, error.message, error);
+        }
+    }
+    async getCategoryForClient(req,res){
+        try{
+            let page = req.query.page || 1;
+            let limit = req.query.limit || 10;
+            let total = await Category.countDocuments({isActive: true});
+            let category = await Category.find({isActive: true})
+                .sort({indexId: -1})
+                .skip((page-1)*limit)
+                .limit(limit)
+                .populate("products")
+                .exec();
+            return category 
+                ? success(res, "Category Found", {
+                    total: total,
+                    page: page,
+                    limit: limit,
+                    category
+                })
+                : notFound(res, "No content found", {
+                    total: total,
+                    page: page,
+                    limit: limit,
+                    category: []
+                });
         }catch(error){
             return failure(res, error.message, error);
         }
