@@ -29,6 +29,7 @@ class ProductController{
         try{
             let page = +req.query.page || 1;
             let limit = +req.query.limit || 10;
+            const total = await Product.countDocuments({});
             const product = await Product.find({})
                 .sort({_id: -1})
                 .skip((page-1)*limit)
@@ -37,10 +38,24 @@ class ProductController{
                     path:"category",
                     select:"name _id"
                 })
-                .exec();
+                .populate({
+                    path: "brand",
+                    select: "title _id"
+                })
+                .lean();
             return product 
-                ? success(res, "Product fetched", product)
-                : notFound(res, "No content found", []); 
+                ? success(res, "Product fetched", {
+                    page: page,
+                    limit: limit,
+                    total: total,
+                    product
+                })
+                : notFound(res, "No content found", {
+                    page: page,
+                    limit: limit,
+                    total: total,
+                    product: []
+                }); 
         }catch(error){
             return failure(res, error.message, error);
         }
@@ -49,11 +64,16 @@ class ProductController{
         try{
             const product = await Product.findOne({
                 _id: req.params.id
-            })
+                })
                 .populate({
                     path: "category",
                     select: "name _id"
-                });
+                })
+                .populate({
+                    path: "brand",
+                    select: "title _id"
+                })
+                .lean();
             return product 
                 ? success(res, "Product Found", product)
                 : notFound(res, "No content found", {}); 
@@ -65,15 +85,38 @@ class ProductController{
         try{
             let limit = +req.query.limit || 10;
             let page = +req.query.page || 1;
+            const total = await Product.countDocuments({
+                category: mongoose.Types.ObjectId(req.params.id)
+            });
             const product = await Product
-                .find({category: mongoose.Types.ObjectId(req.params.id)})
+                .find({
+                    category: mongoose.Types.ObjectId(req.params.id)
+                })
+                .populate({
+                    path: "category",
+                    select: "name _id"
+                })
+                .populate({
+                    path: "brand",
+                    select: "title _id"
+                })
                 .sort({_id: -1})
                 .skip((page-1)*limit)
                 .limit(limit)
                 .exec();
-            return product
-                ? success(res, "Product Found", product)
-                : notFound(res, "No content found", {});
+            return product 
+                ? success(res, "Product fetched", {
+                    page: page,
+                    limit: limit,
+                    total: total,
+                    product
+                })
+                : notFound(res, "No content found", {
+                    page: page,
+                    limit: limit,
+                    total: total,
+                    product: []
+                }); 
         }catch(error){
             return failure(res, error.message, error);
         }
@@ -96,11 +139,23 @@ class ProductController{
             },{
                 $set: updateObj
             });
-            const product = await Product.findOne({_id: mongoose.Types.ObjectId(req.params.id)}).lean();
+            const product = await Product.findOne({
+                _id: mongoose.Types.ObjectId(req.params.id)
+            })
+            .populate({
+                path: "category",
+                select: "name _id"
+            })
+            .populate({
+                path: "brand",
+                select: "title _id"
+            })
+            .lean();
+
             return modified.matchedCount 
                 ? modified.modifiedCount
                 ? success(res, "Successfull Updated Product", product)
-                : notModified(res, "Not modified", {})
+                : notModified(res, "Not modified", product)
                 : notFound(res, "No content found", {});
         }catch(error){
             return failure(res, error.message, error);
@@ -118,6 +173,50 @@ class ProductController{
             return failure(res, error.message, error);
         }
     }
+
+    async searchProduct(req,res){
+        try{
+            let page = +req.query.page || 1;
+            let limit = +req.query.limit || 20;
+            const {titleText} = req.body.query;
+            const total = await Product.countDocuments({
+                title: {$regex: titleText, $options: "i"}
+            });
+            const product = await Product
+                .find({
+                    title: {$regex: titleText, $options: "i"}
+                })
+                .sort({_id: -1})
+                .skip((page-1)*limit)
+                .limit(limit)
+                .populate({
+                    path:"category",
+                    select:"name _id"
+                })
+                .populate({
+                    path: "brand",
+                    select: "title _id"
+                })
+                .lean();
+            return product 
+                ? success(res, "Product fetched", {
+                    page: page,
+                    limit: limit,
+                    total: total,
+                    product
+                })
+                : notFound(res, "No content found", {
+                    page: page,
+                    limit: limit,
+                    total: total,
+                    product: []
+                }); 
+        }catch(error){
+            return failure(res, error.message, error);
+        }
+    }
+
+   
 }
 
 module.exports = new ProductController();

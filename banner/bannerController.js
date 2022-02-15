@@ -21,7 +21,7 @@ class BannerController {
     }
     async getBanner(req,res){
         try{
-            let banner = await Banner.findOne({selected: true})
+            let banner = await Banner.findOne({_id: mongoose.Types.ObjectId(req.params.id)});
             return banner
                 ? success(res, "Banner Fatched", banner)
                 : notFound(res, "No content found", {});
@@ -58,7 +58,7 @@ class BannerController {
             return modified.matchedCount
                 ? modified.modifiedCount
                 ? success(res, "Successfull Updated banner", banner)
-                : notModified(res, "Not modified", {})
+                : notModified(res, "Not modified", banner)
                 : notFound(res, "No content found", {});
         }catch(error){
             return failure(res, error.message, error);
