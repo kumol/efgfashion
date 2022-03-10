@@ -1,6 +1,6 @@
 const bannerController = require("./bannerController");
 const route = require("express").Router();
-const {Admin} = require("../../api/middleware/permission.middleware");
+const {Admin} = require("../common/middleware/Permission");
 const path = require('path')
 
 route.post(
