@@ -1,5 +1,5 @@
 const route = require("express").Router();
-const { Admin } = require("../../../api/middleware/permission.middleware");
+const { Admin } = require("../../common/middleware/Permission");
 const VariationController = require("../controller/Variation");
 
 route.post('/variation', Admin, VariationController.createVariation);

@@ -2,7 +2,7 @@ const route = require("express").Router();
 const ProductController = require("../controller/product");
 const ProductControllerv2 = require("../controller/ProductV2");
 //const { Admin } = require("../../common/middleware/Permission");
-const { Admin } = require("../../../api/middleware/permission.middleware");
+const { Admin } = require("../../common/middleware/Permission");
 
 route.post('/v1/', Admin, ProductController.addNewProduct);
 route.post('/v2/create/', Admin, ProductControllerv2.addNewProduct);

@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { Admin } = require("../../../api/middleware/permission.middleware");
+const { Admin } = require("../../common/middleware/Permission");
 const { Customer } = require("../../common/middleware/Permission");
 const userController = require("../controller/user");
 

@@ -2,7 +2,6 @@ const { failure, success, notModified, notFound } = require("../../common/helper
 const Variation = require("../../models/product/Variation");
 const mongoose = require("mongoose");
 const Product = require("../../models/product/product");
-const { FileUpload } = require("../../common/helper");
 const validator = require('validatorjs');
 const ERROR_MESSAGE = require("../../common/helper/errorMessage");
 

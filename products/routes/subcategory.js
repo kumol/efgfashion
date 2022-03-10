@@ -1,6 +1,6 @@
 const route = require("express").Router();
 //const { Admin } = require("../../common/middleware/Permission");
-const { Admin } = require("../../../api/middleware/permission.middleware");
+const { Admin } = require("../../common/middleware/Permission");
 const SubCategoryController = require("../controller/SubCategory");
 
 route.post('/subcategory', Admin, SubCategoryController.addNewSubCategory);
