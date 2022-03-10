@@ -16,4 +16,4 @@ const roleSchema = new Schema({
     timestamps: true
 })
 
-module.exports = model('Role', roleSchema, "role");
+module.exports = model('AdminRole', roleSchema, "adminrole");

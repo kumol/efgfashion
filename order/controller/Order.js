@@ -2,6 +2,7 @@ const { success, failure, notFound, notModified } = require("../../common/helper
 const Order = require("../../models/Order/Order");
 const uid = require("uniqid");
 const mongoose = require("mongoose");
+const moment = require("moment");
 class OrderController{
     async placeOrder(req, res, next){
         try {
@@ -38,11 +39,13 @@ class OrderController{
                 paymentStatus = "paid"
             }
 
+            const orderDate = moment().format("YYYY-MM-DD");
             const orderData = new Order({
-                orderCode : orderId,
+                orderId : orderId,
                 user: req.user.id,
                 name,
                 email,
+                orderDate,
                 phone,
                 shippingArea,
                 deliveryAddress,
@@ -68,11 +71,20 @@ class OrderController{
     }
     async getAllOrder(req,res,next){
         try{
-            let page = req.query.page || 1,
-                limit = req.query.limit || 10,
-                total = await Order.countDocuments({});
+            let page = +req.query.page || 1,
+                limit = +req.query.limit || 10,
+                status = req.query.status,
+                fromDate = req.query.fromDate,
+                toDate = req.query.toDate,
+                searchText = req.query.searchText;
 
-            let order = await Order.find({})
+            let query = {};
+            status ? query["status"] = status : null;
+            fromDate && toDate ? query["$and"] = [{"orderDate": {$gte: fromDate}},{"orderDate":{$lte: toDate}}] : null;
+            searchText ? query["orderId"] = {$regex: searchText} : null;
+
+            const total = await Order.countDocuments(query);
+            let order = await Order.find(query)
                 .sort({_id: -1})
                 .skip((page-1)*limit)
                 .limit(limit)

@@ -14,7 +14,7 @@ const categorySchema = new Schema({
     },
     products: [{
         type: Schema.Types.ObjectId,
-        ref: 'Product',
+        ref: 'ProductV2',
         default: []
     }],
     isActive: {
@@ -31,9 +31,13 @@ const categorySchema = new Schema({
     id:{
         type: String,
         default:""
+    },
+    icon:{
+        type: String,
+        default: ""
     }
 }, {
     timestamps: true
 });
 
-module.exports = model('Category', categorySchema)
+module.exports = model('ItemCategory', categorySchema, "item_category")

@@ -11,9 +11,11 @@ class CategoryController{
             let category = new Category({
                 ...req.body
             });
-            const uploadFile = await Helper.FileUpload(file.banner, './upload/category/banner/', category._id);
+            let icon = file && file.icon ? await Helper.FileUpload(file.icon, './uploads/category/icon/', "icon"+ category._id) : null;
+            const uploadFile = await Helper.FileUpload(file.banner, './uploads/category/banner/', category._id);
             category.id = category._id;
             category.banner = uploadFile
+            icon ? category.icon = icon : null;
             category = await category.save();
             return success(res, "Category Created", category);
         }catch(error){
@@ -50,15 +52,25 @@ class CategoryController{
     }
     async getCategoryForClient(req,res){
         try{
-            let page = req.query.page || 1;
-            let limit = req.query.limit || 10;
+            let page = +req.query.page || 1;
+            let limit = +req.query.limit || 10;
+            let productLimit = +req.query.productLimit || 12;
             let total = await Category.countDocuments({isActive: true});
             let category = await Category.find({isActive: true})
-                .sort({indexId: -1})
+                .sort({indexId: 1})
                 .skip((page-1)*limit)
                 .limit(limit)
                 .populate("products")
-                .exec();
+                .lean();
+
+            category = category.map(c=>{
+                let products = c.products.slice(0,productLimit)
+                return {
+                    ...c,
+                    products
+                }
+
+            });
             return category 
                 ? success(res, "Category Found", {
                     total: total,
@@ -99,10 +111,11 @@ class CategoryController{
     async updateCategory(req,res){
         try{
             const file = req.files;
-            const uploadFile = file && file.banner ? await Helper.FileUpload(file.banner, './upload/category/banner/', req.params.id) : null;
-
-            let {product, addProduct, removeProduct, ...body} = req.body,
-               updatedObj = {},
+            const uploadFile = file && file.banner ? await Helper.FileUpload(file.banner, './uploads/category/banner/', req.params.id) : null;
+            let icon = file && file.icon ? await Helper.FileUpload(file.icon, './uploads/category/icon/', "icon"+ req.params.id) : null;
+            let {product, addProduct, removeProduct, ...body} = req.body;
+            icon ? body.icon = icon : null;
+            let updatedObj = {},
                pushObj = addProduct ? {"products": product} : null,
                pullObj = removeProduct ? {"products": product } : null,
                setObj = body ? {...body} : null;
@@ -121,6 +134,7 @@ class CategoryController{
                 : notModified(res, "Not modified", modified)
                 : notFound(res, "No content found", {});
         }catch(error){
+            console.log(error);
             return failure(res, error.message, error);
         }
     }

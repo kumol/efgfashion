@@ -6,6 +6,11 @@ const OrderSchema = new Schema({
         ref: "User",
         default: null
     },
+    orderDate:{
+        type: String,
+        required: true,
+        trim: true
+    },
     name: {
         type: String,
         required: true,
@@ -130,6 +135,23 @@ const OrderSchema = new Schema({
     },
     transactionId: {
         type: Schema.Types.ObjectId
+    },
+    trackingNumber:{
+        type: String,
+        default: null
+    },
+    shippingCompany:{
+        type: String,
+        default: null
+    },
+    deliveryStatus: {
+        type: String,
+        default: "",
+        enum:["", "picked",
+        "Received by warehouse",
+        "packed",
+        "handed over to courier",
+        "delivered"]
     },
     isCouponApplied: {
         type: Boolean,

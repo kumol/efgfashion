@@ -4,9 +4,34 @@ const bannerSchema = new Schema({
     name: {
         type: String,
         trim: true,
-        default: ""
+        required: true
     },
     title: {
+        type: String,
+        trim: true,
+        required: true
+    },
+    details: {
+        type: String,
+        trim: true,
+        required: true
+    },
+    buttonOneText: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    buttonOneUrl: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    buttonTwoText: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    buttonTwoUrl: {
         type: String,
         trim: true,
         default: ""
@@ -14,9 +39,9 @@ const bannerSchema = new Schema({
     banner: {
         type: String,
         trim: true,
-        default: ""
+        required: true
     },
-    selected: {
+    publish: {
         type: Boolean,
         default: true
     }

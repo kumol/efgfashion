@@ -1,5 +1,6 @@
 const route = require("express").Router();
-const { Customer, Admin } = require("../../common/middleware/Permission");
+const { Customer } = require("../../common/middleware/Permission");
+const { Admin } = require("../../middleware/permission.middleware");
 const OrderController = require("../controller/Order");
 
 route.get("/", Admin, OrderController.getAllOrder);

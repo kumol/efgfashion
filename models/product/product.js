@@ -23,9 +23,13 @@ const productSchema = new Schema({
         type: String,
         default: ""
     },
+    shortDescription: {
+        type: String,
+        default: ""
+    },
     category: {
         type: Schema.Types.ObjectId,
-        ref: 'Category',
+        ref: 'ItemCategory',
         require: true
     },
     tags: [{
@@ -65,6 +69,21 @@ const productSchema = new Schema({
             trim: true,
             required: true
         }
+    },
+    secondImage: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    thirdImage: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    fourthImage: {
+        type: String,
+        trim: true,
+        default: ""
     },
     createdBy: {
         type: Schema.Types.ObjectId,

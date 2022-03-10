@@ -1,4 +1,5 @@
 const route = require("express").Router();
+//const { Admin } = require("../../common/middleware/Permission");
 const { Admin } = require("../../common/middleware/Permission");
 const CategoryController = require("../controller/category");
 

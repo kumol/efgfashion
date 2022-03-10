@@ -36,7 +36,7 @@ const adminSchema = new Schema({
     },
     role: {
         type: Schema.Types.ObjectId,
-        ref: "Role",
+        ref: "AdminRole",
         required: true
     },
     password: {
@@ -53,4 +53,4 @@ const adminSchema = new Schema({
     timestamps: true
 })
 
-module.exports = model("Admin", adminSchema, "admin")
+module.exports = model("AdminEcommerce", adminSchema, "admin_ecommerce")
